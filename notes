@@ -1,0 +1,8 @@
+module - 2
+
+lesson 18 Theme: Validation with Pipes;
+
+1. Override method with decorator @UsePipes(new ValidationPipe())
+2. Install class-validator, class-transformator
+3. Add rules to DTO (decorators from class-validator)
+4. custom check in service if user exists by email or name
