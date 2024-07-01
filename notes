@@ -6,3 +6,7 @@ lesson 18 Theme: Validation with Pipes;
 2. Install class-validator, class-transformator
 3. Add rules to DTO (decorators from class-validator)
 4. custom check in service if user exists by email or name
+
+lesson 20 Auth Middleware and get user
+- create get user method
+- create middleware for Auth
