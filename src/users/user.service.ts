@@ -8,6 +8,7 @@ import { JWT_SECRET } from 'src/config';
 import { IUserResponse } from './types/userResponse.interface';
 import { LoginUserDto } from './dto/login-user.dto';
 import { compare } from 'bcrypt';
+import { UpdatedUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -15,6 +16,27 @@ export class UserService {
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
   ) {}
+
+  generateJwt(user: UserEntity): string {
+    return sign(
+      {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+      },
+      JWT_SECRET,
+    );
+  }
+
+  buildUserResponse(user: UserEntity): IUserResponse {
+    return {
+      user: {
+        ...user,
+        token: this.generateJwt(user),
+      },
+    };
+  }
+
   async createUser(createUserDto: CreateUserDto): Promise<UserEntity> {
     const userByEmail = await this.userRepository.findOne({
       where: { email: createUserDto.email },
@@ -67,23 +89,9 @@ export class UserService {
     return this.userRepository.findOne({ where: { id } });
   }
 
-  generateJwt(user: UserEntity): string {
-    return sign(
-      {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-      },
-      JWT_SECRET,
-    );
-  }
-
-  buildUserResponse(user: UserEntity): IUserResponse {
-    return {
-      user: {
-        ...user,
-        token: this.generateJwt(user),
-      },
-    };
+  async updateUser(id: number, updatedUser: UpdatedUserDto): Promise<UserEntity> {
+    const user = await this.userRepository.findOne({where: { id }})
+    Object.assign(user, updatedUser)
+    return await this.userRepository.save(user)
   }
 }
