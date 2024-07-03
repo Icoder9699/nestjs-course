@@ -1,6 +1,8 @@
-import { Controller, Get, Post } from "@nestjs/common";
-import { ArticleEntity } from "./article.entity";
+import { Body, Controller, Get, Post, UseGuards, UsePipes, ValidationPipe } from "@nestjs/common";
 import { ArticleService } from "./article.service";
+import { AuthGuard } from "src/guards/auth.guard";
+import { CreateArticleDto } from "./dto/createArticle.dto";
+import { User } from "src/users/decorators/user.decorator";
 
 @Controller("articles")
 export class ArticleController{
@@ -12,7 +14,9 @@ export class ArticleController{
   }
 
   @Post()
-  create(){
-    return this.articleService.create()
+  @UseGuards(AuthGuard)
+  @UsePipes(new ValidationPipe())
+  create(@User() user, @Body("article") createArticleDto: CreateArticleDto){
+    return this.articleService.create(user, createArticleDto)
   }
-}
+} 
