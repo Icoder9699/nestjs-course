@@ -11,9 +11,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import ormConfig from './ormconfig';
 import { UserModule } from './users/user.module';
 import AuthMiddleware from './middlewares/auth.middleware';
+import { ArticleModule } from './article/article.module';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(ormConfig), TagModule, UserModule],
+  imports: [TypeOrmModule.forRoot(ormConfig), TagModule, UserModule, ArticleModule],
   controllers: [AppController],
   providers: [AppService],
 })
