@@ -40,13 +40,16 @@ export class UserController {
   @Get('user')
   @UseGuards(AuthGuard)
   async getUser(@User() user: UserEntity): Promise<IUserResponse> {
-    return await this.userService.buildUserResponse(user);
+    return this.userService.buildUserResponse(user);
   }
 
-  @Put("user")
+  @Put('user')
   @UseGuards(AuthGuard)
-  async changeUser(@User('id') userId: number, @Body('user') updatedUser: UpdatedUserDto): Promise<IUserResponse> {
-    const user =  await this.userService.updateUser(userId, updatedUser)
-    return this.userService.buildUserResponse(user)
+  async changeUser(
+    @User('id') userId: number,
+    @Body('user') updatedUser: UpdatedUserDto,
+  ): Promise<IUserResponse> {
+    const user = await this.userService.updateUser(userId, updatedUser);
+    return this.userService.buildUserResponse(user);
   }
 }
