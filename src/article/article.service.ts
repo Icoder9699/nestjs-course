@@ -18,7 +18,7 @@ export class ArticleService {
     return { article };
   }
 
-  getSlug(title: string): string {
+  generateSlug(title: string): string {
     return (
       slugify(title, { lower: true }) +
       '-' +
@@ -37,9 +37,14 @@ export class ArticleService {
       article.tagList = [];
     }
 
-    article.slug = this.getSlug(createArticleDto.title);
+    article.slug = this.generateSlug(createArticleDto.title);
     article.author = currentUser;
 
     return await this.articleRepository.save(article);
+  }
+
+  async findBySlug(slug: string) {
+    const article = await this.articleRepository.findOne({ where: { slug } });
+    return this.buildArticleResponse(article);
   }
 }

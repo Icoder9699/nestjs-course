@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   UseGuards,
   UsePipes,
@@ -20,6 +21,12 @@ export class ArticleController {
   @Get()
   get() {
     return 'articles';
+  }
+
+  @Get(':slug')
+  @UseGuards(AuthGuard)
+  async findSingleArticleBySlug(@Param('slug') slug: string) {
+    return await this.articleService.findBySlug(slug);
   }
 
   @Post()
