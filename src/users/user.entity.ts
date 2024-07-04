@@ -1,6 +1,13 @@
 import { hash } from 'bcrypt';
 import { ArticleEntity } from 'src/article/article.entity';
-import { BeforeInsert, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BeforeInsert,
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity('users')
 export class UserEntity {
@@ -28,5 +35,5 @@ export class UserEntity {
   }
 
   @OneToMany(() => ArticleEntity, (article) => article.author)
-  articles: ArticleEntity[]
+  articles: ArticleEntity[];
 }
