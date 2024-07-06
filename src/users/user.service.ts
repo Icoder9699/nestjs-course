@@ -89,9 +89,12 @@ export class UserService {
     return this.userRepository.findOne({ where: { id } });
   }
 
-  async updateUser(id: number, updatedUser: UpdatedUserDto): Promise<UserEntity> {
-    const user = await this.userRepository.findOne({where: { id }})
-    Object.assign(user, updatedUser)
-    return await this.userRepository.save(user)
+  async updateUser(
+    id: number,
+    updatedUser: UpdatedUserDto,
+  ): Promise<UserEntity> {
+    const user = await this.userRepository.findOne({ where: { id } });
+    Object.assign(user, updatedUser);
+    return await this.userRepository.save(user);
   }
 }

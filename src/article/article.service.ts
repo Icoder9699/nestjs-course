@@ -43,9 +43,8 @@ export class ArticleService {
     return await this.articleRepository.save(article);
   }
 
-  async findBySlug(slug: string): Promise<IArticleResponse> {
-    const article = await this.articleRepository.findOne({ where: { slug } });
-    return this.buildArticleResponse(article);
+  async findBySlug(slug: string): Promise<ArticleEntity> {
+    return await this.articleRepository.findOne({ where: { slug } });
   }
 
   async deleteBySlug(
@@ -58,7 +57,7 @@ export class ArticleService {
       new HttpException("Article doesn't exsists!", HttpStatus.NOT_FOUND);
     }
 
-    if (currentUserId !== article.article.author.id) {
+    if (currentUserId !== article?.author.id) {
       new HttpException('You are not an author!', HttpStatus.FORBIDDEN);
     }
 

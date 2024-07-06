@@ -28,7 +28,9 @@ export class ArticleController {
   @Get(':slug')
   @UseGuards(AuthGuard)
   async findSingleArticleBySlug(@Param('slug') slug: string) {
-    return await this.articleService.findBySlug(slug);
+    return this.articleService.buildArticleResponse(
+      await this.articleService.findBySlug(slug),
+    );
   }
 
   @Post()
