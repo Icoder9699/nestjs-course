@@ -63,4 +63,20 @@ export class ArticleService {
 
     return this.articleRepository.delete({ slug });
   }
+
+  async updateBySlug(
+    currentUserId: number,
+    slug: string,
+    updatedArticle: CreateArticleDto,
+  ) {
+    const article = await this.findBySlug(slug);
+
+    if (currentUserId !== article?.author.id) {
+      new HttpException('You are not an author!', HttpStatus.FORBIDDEN);
+    }
+
+    Object.assign(article, updatedArticle);
+
+    return await this.articleRepository.save(article);
+  }
 }
