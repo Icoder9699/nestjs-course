@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -20,11 +21,6 @@ import { UserEntity } from 'src/users/user.entity';
 @Controller('articles')
 export class ArticleController {
   constructor(private readonly articleService: ArticleService) {}
-
-  @Get()
-  get() {
-    return 'articles';
-  }
 
   @Get(':slug')
   @UseGuards(AuthGuard)
@@ -62,5 +58,11 @@ export class ArticleController {
     return this.articleService.buildArticleResponse(
       await this.articleService.updateBySlug(user.id, slug, body),
     );
+  }
+
+  @Get()
+  @UseGuards(AuthGuard)
+  async getArticles(@User() user: UserEntity, @Query() query: any) {
+    return this.articleService.getAll(user.id, query);
   }
 }
