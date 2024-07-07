@@ -104,8 +104,23 @@ export class ArticleService {
       const author = await this.userRepository.findOne({
         where: { username: query.author },
       });
-
       queryBuilder.andWhere('articles.authorId = :id', { id: author?.id });
+    }
+
+    // username that was liked
+    if (query.favorited) {
+      const user = await this.userRepository.findOne({
+        where: { username: query.favorited },
+        relations: { favorites: true },
+      });
+      const ids = user.favorites.map((fav) => fav.id);
+      console.log(ids, user.favorites);
+
+      if (ids.length > 0) {
+        queryBuilder.andWhere('articles.id IN (:...ids)', { ids });
+      } else {
+        queryBuilder.andWhere('1=0');
+      }
     }
 
     if (query.limit) {
