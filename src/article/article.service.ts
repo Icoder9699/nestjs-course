@@ -15,7 +15,7 @@ export class ArticleService {
   constructor(
     private dataSoure: DataSource,
     @InjectRepository(UserEntity)
-    private readonly useReposityory: Repository<UserEntity>,
+    private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(ArticleEntity)
     private readonly articleRepository: Repository<ArticleEntity>,
   ) {}
@@ -101,7 +101,7 @@ export class ArticleService {
     }
 
     if (query.author) {
-      const author = await this.useReposityory.findOne({
+      const author = await this.userRepository.findOne({
         where: { username: query.author },
       });
 
@@ -128,9 +128,11 @@ export class ArticleService {
   ): Promise<ArticleEntity> {
     const article = await this.findBySlug(slug);
 
-    const user = await this.useReposityory.findOne({
+    const user = await this.userRepository.findOne({
       where: { id: currentUserId },
-      relations: ['favorites'],
+      relations: {
+        favorites: true,
+      },
     });
 
     const isFavorite = user.favorites.some(
@@ -144,7 +146,7 @@ export class ArticleService {
     user.favorites.push(article);
     article.favoritesCount++;
     this.articleRepository.save(article);
-    this.useReposityory.save(user);
+    this.userRepository.save(user);
 
     return article;
   }
