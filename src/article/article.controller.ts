@@ -15,7 +15,10 @@ import { ArticleService } from './article.service';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { CreateArticleDto } from './dto/createArticle.dto';
 import { User } from 'src/users/decorators/user.decorator';
-import { IArticleResponse } from './types/articleResponse.interface';
+import {
+  IArticleResponse,
+  IArticlesResponse,
+} from './types/articleResponse.interface';
 import { UserEntity } from 'src/users/user.entity';
 
 @Controller('articles')
@@ -62,7 +65,24 @@ export class ArticleController {
 
   @Get()
   @UseGuards(AuthGuard)
-  async getArticles(@User() user: UserEntity, @Query() query: any) {
+  async getArticles(
+    @User() user: UserEntity,
+    @Query() query: any,
+  ): Promise<IArticlesResponse> {
     return this.articleService.getAll(user.id, query);
+  }
+
+  @Post(':slug/favorite')
+  @UseGuards(AuthGuard)
+  async addArticleToFavorites(
+    @User() user: UserEntity,
+    @Param('slug') slug: string,
+  ): Promise<IArticleResponse> {
+    const article = await this.articleService.addArticleToFavorites(
+      user.id,
+      slug,
+    );
+
+    return this.articleService.buildArticleResponse(article);
   }
 }

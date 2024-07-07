@@ -121,4 +121,31 @@ export class ArticleService {
 
     return { articles, total };
   }
+
+  async addArticleToFavorites(
+    currentUserId: number,
+    slug,
+  ): Promise<ArticleEntity> {
+    const article = await this.findBySlug(slug);
+
+    const user = await this.useReposityory.findOne({
+      where: { id: currentUserId },
+      relations: ['favorites'],
+    });
+
+    const isFavorite = user.favorites.some(
+      (favArticle) => favArticle.id === article.id,
+    );
+
+    if (isFavorite) {
+      return article;
+    }
+
+    user.favorites.push(article);
+    article.favoritesCount++;
+    this.articleRepository.save(article);
+    this.useReposityory.save(user);
+
+    return article;
+  }
 }
