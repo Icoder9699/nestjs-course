@@ -131,10 +131,26 @@ export class ArticleService {
       queryBuilder.offset(query.offset);
     }
 
+    let userFavIds: number[] = [];
+    if (currentUserId) {
+      const user = await this.userRepository.findOne({
+        where: { id: currentUserId },
+        relations: ['favorites'],
+      });
+
+      userFavIds = user.favorites.map((fav) => fav.id);
+    }
+
     const articles = await queryBuilder.getMany();
+    const articlesWithFavorites = articles.map((article) => {
+      // new field
+      const favorited = userFavIds.includes(article.id);
+
+      return { ...article, favorited };
+    });
     const total = await queryBuilder.getCount();
 
-    return { articles, total };
+    return { articles: articlesWithFavorites, total };
   }
 
   async addArticleToFavorites(
