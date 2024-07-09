@@ -53,10 +53,12 @@ export class ProfileService {
       );
     }
 
-    const follow = this.followRepository.findOne({
+   
+    const follow = await this.followRepository.findOne({
       where: { followerId: currentUserId, followingId: user.id },
     });
 
+    
     if (!follow) {
       const followToCreate = new FollowEntity();
       followToCreate.followerId = currentUserId;
@@ -65,5 +67,30 @@ export class ProfileService {
     }
 
     return { ...user, following: true };
+
+  }
+
+  async unfollowProfile(
+    currentUserId: number,
+    profileUserName: string,
+  ): Promise<ProfileType> {
+    const user = await this.userRepository.findOne({
+      where: { username: profileUserName },
+    });
+    
+    if (!user) {
+      throw new HttpException('Profile does not exist!', HttpStatus.NOT_FOUND);
+    }
+
+    if (user.id === currentUserId) {
+      throw new HttpException(
+        'Follower and following cant be equal!',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    await this.followRepository.delete({ followerId: currentUserId, followingId: user.id});
+
+    return { ...user, following: false };
   }
 }
