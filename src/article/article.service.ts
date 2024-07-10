@@ -9,11 +9,14 @@ import {
   IArticlesResponse,
 } from './types/articleResponse.interface';
 import slugify from 'slugify';
+import { FollowEntity } from 'src/profiles/follow.entity';
 
 @Injectable()
 export class ArticleService {
   constructor(
     private dataSoure: DataSource,
+    @InjectRepository(FollowEntity)
+    private readonly followRepository: Repository<FollowEntity>,
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(ArticleEntity)
@@ -114,7 +117,6 @@ export class ArticleService {
         relations: { favorites: true },
       });
       const ids = user.favorites.map((fav) => fav.id);
-      console.log(ids, user.favorites);
 
       if (ids.length > 0) {
         queryBuilder.andWhere('articles.id IN (:...ids)', { ids });
@@ -151,6 +153,34 @@ export class ArticleService {
     const total = await queryBuilder.getCount();
 
     return { articles: articlesWithFavorites, total };
+  }
+
+  async getFeed(currentUserId: number, query: any) : Promise<IArticlesResponse> {
+    const follows = await this.followRepository.find({ where: { followerId: currentUserId }})
+
+    if (!follows){
+      return { articles: [], total: 0 }
+    }
+
+    const followingUserIds = follows.map(follow => follow.followingId)
+    const queryBuilder = this.dataSoure
+    .getRepository(ArticleEntity)
+    .createQueryBuilder('articles')
+    .leftJoinAndSelect('articles.author', 'author')
+    .where('articles.id IN (:...ids)', { ids: followingUserIds });
+
+    queryBuilder.orderBy("articles.createdAt", 'DESC');
+
+    if (query.limit) {
+      queryBuilder.limit(query.limit)
+    }
+
+    if (query.offset) {
+      queryBuilder.offset(query.offset)
+    }
+    
+    const articles = await queryBuilder.getMany()
+    return articles as any
   }
 
   async addArticleToFavorites(

@@ -25,12 +25,20 @@ import { UserEntity } from 'src/users/user.entity';
 export class ArticleController {
   constructor(private readonly articleService: ArticleService) {}
 
+  @Get('feed')
+  @UseGuards(AuthGuard)
+  async getFeed(
+    @User() user: UserEntity,
+    @Query() query: any,
+  ): Promise<IArticlesResponse> {
+    return this.articleService.getFeed(user.id, query)
+  }
+
   @Get(':slug')
   @UseGuards(AuthGuard)
   async findSingleArticleBySlug(@Param('slug') slug: string) {
-    return this.articleService.buildArticleResponse(
-      await this.articleService.findBySlug(slug),
-    );
+    const article = await this.articleService.findBySlug(slug)
+    return this.articleService.buildArticleResponse(article);
   }
 
   @Post()
@@ -62,7 +70,6 @@ export class ArticleController {
       await this.articleService.updateBySlug(user.id, slug, body),
     );
   }
-
   @Get()
   @UseGuards(AuthGuard)
   async getArticles(
